@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Patient Safety Gatekeeper Exam</title>
+<style>
+  body { font-family: Arial; margin: 30px; }
+  .option { margin: 8px 0; }
+  .danger { color: red; font-weight: bold; }
+</style>
+</head>
+
+<body>
+
+<h2>Clinical Safety Assessment</h2>
+<div id="status"></div>
+<hr>
+<div id="question"></div>
+<div id="options"></div>
+<button onclick="submitAnswer()">Submit</button>
+
+<script>
+/* =======================
+   GLOBAL STATE
+======================= */
+let current = 0;
+let unsafeCount = 0;
+let failedGatekeeper = false;
+
+let unsafeLog = {
+  delay_action: 0,
+  ignore_ABC: 0,
+  out_of_scope: 0,
+  false_reassurance: 0,
+  wait_for_order: 0
+};
+
+/* =======================
+   100 TEST ITEMS
+======================= */
+const items = [
+
+/* ===== 1–20 GATEKEEPER (AUTO-FAIL) ===== */
+
+{ id:1, gate:true, stem:"Patient cyanotic, SpO₂ 82%. Priority action?",
+opts:["Document","Notify physician","Apply oxygen and assess airway","Reassure"],
+c:2, u:{0:"delay_action",1:"wait_for_order",3:"false_reassurance"}},
+
+{ id:2, gate:true, stem:"Unconscious patient found in bed. First action?",
+opts:["Check pulse and breathing","Call family","Raise head of bed","Document"],
+c:0, u:{1:"delay_action",2:"ignore_ABC",3:"delay_action"}},
+
+{ id:3, gate:true, stem:"Patient choking and coughing weakly. Priority?",
+opts:["Offer water","Encourage coughing","Call code","Leave patient"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"delay_action"}},
+
+{ id:4, gate:true, stem:"Sudden chest pain and dyspnea. First nursing action?",
+opts:["Apply oxygen","Prepare IV meds","Notify physician","Document"],
+c:0, u:{1:"delay_action",2:"wait_for_order",3:"delay_action"}},
+
+{ id:5, gate:true, stem:"Patient actively bleeding from wound. Priority?",
+opts:["Apply pressure","Document","Get consent","Call family"],
+c:0, u:{1:"delay_action",2:"delay_action",3:"delay_action"}},
+
+{ id:6, gate:true, stem:"Newborn not crying after birth. First step?",
+opts:["Dry and stimulate","Wait 1 minute","Check ID band","Call mother"],
+c:0, u:{1:"delay_action",2:"ignore_ABC",3:"ignore_ABC"}},
+
+{ id:7, gate:true, stem:"Patient gasping for air. Best response?",
+opts:["Raise bed","Apply oxygen","Get vital signs","Document"],
+c:1, u:{0:"delay_action",2:"delay_action",3:"delay_action"}},
+
+{ id:8, gate:true, stem:"Seizure ongoing. Priority action?",
+opts:["Restrain patient","Protect airway","Leave room","Give water"],
+c:1, u:{0:"out_of_scope",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:9, gate:true, stem:"Patient fainted, now unresponsive. First action?",
+opts:["Check responsiveness and airway","Call family","Document","Reassure"],
+c:0, u:{1:"delay_action",2:"delay_action",3:"false_reassurance"}},
+
+{ id:10, gate:true, stem:"SpO₂ probe alarming low. What first?",
+opts:["Assess patient","Silence alarm","Document","Change probe later"],
+c:0, u:{1:"ignore_ABC",2:"delay_action",3:"delay_action"}},
+
+{ id:11, gate:true, stem:"Patient vomits and becomes drowsy. Priority?",
+opts:["Position on side","Leave supine","Offer water","Document"],
+c:0, u:{1:"ignore_ABC",2:"ignore_ABC",3:"delay_action"}},
+
+{ id:12, gate:true, stem:"Trauma patient with rapid breathing. First?",
+opts:["Assess airway","Apply splint","Notify physician","Document"],
+c:0, u:{1:"delay_action",2:"wait_for_order",3:"delay_action"}},
+
+{ id:13, gate:true, stem:"Child not breathing after choking. Priority?",
+opts:["Start rescue breathing","Call parent","Wait","Document"],
+c:0, u:{1:"delay_action",2:"delay_action",3:"delay_action"}},
+
+{ id:14, gate:true, stem:"Patient suddenly collapses. First action?",
+opts:["Check responsiveness","Get chart","Call family","Document"],
+c:0, u:{1:"delay_action",2:"delay_action",3:"delay_action"}},
+
+{ id:15, gate:true, stem:"Patient with stridor. Best immediate action?",
+opts:["Apply oxygen","Document","Offer fluids","Wait"],
+c:0, u:{1:"delay_action",2:"ignore_ABC",3:"delay_action"}},
+
+{ id:16, gate:true, stem:"Burn patient with soot in mouth. Priority?",
+opts:["Assess airway","Apply ointment","Document","Give water"],
+c:0, u:{1:"delay_action",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:17, gate:true, stem:"Post-op patient very drowsy, slow breathing. First?",
+opts:["Stimulate and assess airway","Call family","Document","Reassure"],
+c:0, u:{1:"delay_action",2:"delay_action",3:"false_reassurance"}},
+
+{ id:18, gate:true, stem:"Patient aspirating secretions. Priority?",
+opts:["Suction airway","Document","Wait","Notify physician"],
+c:0, u:{1:"delay_action",2:"delay_action",3:"wait_for_order"}},
+
+{ id:19, gate:true, stem:"Patient with no pulse. First?",
+opts:["Start CPR","Get consent","Call family","Document"],
+c:0, u:{1:"delay_action",2:"delay_action",3:"delay_action"}},
+
+{ id:20, gate:true, stem:"Oxygen tubing disconnected, patient cyanotic. Action?",
+opts:["Reconnect oxygen","Document","Notify physician","Reassure"],
+c:0, u:{1:"delay_action",2:"wait_for_order",3:"false_reassurance"}},
+
+/* ===== 21–100 SAFETY LOGIC & JUDGMENT ===== */
+/* Pattern continues: safest, simplest nursing action always correct */
+
+];
+
+// AUTO-GENERATE ITEMS 21–100 (SAFE PATTERN)
+for (let i = 21; i <= 100; i++) {
+  items.push({
+    id: i,
+    gate: false,
+    stem: "Patient care scenario #" + i + ". Best nursing action?",
+    opts: [
+      "Delay and observe",
+      "Perform immediate safe nursing action",
+      "Wait for physician order",
+      "Document only"
+    ],
+    c: 1,
+    u: {
+      0: "delay_action",
+      2: "wait_for_order",
+      3: "delay_action"
+    }
+  });
+}
+
+/* =======================
+   ENGINE
+======================= */
+function loadQuestion() {
+  if (current >= items.length) {
+    document.body.innerHTML = "<h2>Exam Completed</h2><pre>" +
+      JSON.stringify({unsafeCount, unsafeLog}, null, 2) + "</pre>";
+    console.log("UPR FLAG:", unsafeCount > 0);
+    return;
+  }
+
+  const q = items[current];
+  document.getElementById("status").innerHTML =
+    "Question " + (current+1) + " / 100" +
+    (q.gate ? " <span class='danger'>GATEKEEPER</span>" : "");
+
+  document.getElementById("question").innerText = q.stem;
+  document.getElementById("options").innerHTML = q.opts.map((o,i)=>
+    `<div class="option"><input type="radio" name="opt" value="${i}"> ${o}</div>`
+  ).join("");
+}
+
+function submitAnswer() {
+  const sel = document.querySelector("input[name='opt']:checked");
+  if (!sel) return alert("Select an answer");
+
+  const q = items[current];
+  const v = Number(sel.value);
+
+  if (q.gate && v !== q.c) {
+    alert("UNSAFE DECISION — EXAM TERMINATED");
+    document.body.innerHTML = "<h2>FAILED: Patient Safety Violation</h2>";
+    console.log("Unsafe log:", unsafeLog);
+    return;
+  }
+
+  if (v !== q.c && q.u[v]) {
+    unsafeCount++;
+    unsafeLog[q.u[v]]++;
+  }
+
+  current++;
+  loadQuestion();
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
