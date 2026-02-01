@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <title>Patient Safety Gatekeeper Exam</title>
 <style>
-  body { font-family: Arial; margin: 30px; }
-  .option { margin: 8px 0; }
-  .danger { color: red; font-weight: bold; }
+ body { font-family: Arial; margin: 30px; }
+ .option { margin: 8px 0; }
+ .danger { color: red; font-weight: bold; }
 </style>
 </head>
 
@@ -20,25 +20,25 @@
 <button onclick="submitAnswer()">Submit</button>
 
 <script>
-/* =======================
-   GLOBAL STATE
-======================= */
 let current = 0;
 let unsafeCount = 0;
-let failedGatekeeper = false;
 
 let unsafeLog = {
-  delay_action: 0,
-  ignore_ABC: 0,
-  out_of_scope: 0,
-  false_reassurance: 0,
-  wait_for_order: 0
+ delay_action:0,
+ ignore_ABC:0,
+ out_of_scope:0,
+ false_reassurance:0,
+ wait_for_order:0
 };
 
-/* =======================
-   100 TEST ITEMS
-======================= */
 const items = [
+
+/* =======================
+   1–20 GATEKEEPER (UNCHANGED)
+======================= */
+
+/* (Items 1–20 SAME as previous version — omitted here for brevity in explanation,
+   BUT IN YOUR ACTUAL FILE THEY MUST REMAIN EXACTLY AS BEFORE) */
 
 /* ===== 1–20 GATEKEEPER (AUTO-FAIL) ===== */
 
@@ -123,74 +123,344 @@ opts:["Reconnect oxygen","Document","Notify physician","Reassure"],
 c:0, u:{1:"delay_action",2:"wait_for_order",3:"false_reassurance"}},
 
 /* ===== 21–100 SAFETY LOGIC & JUDGMENT ===== */
-/* Pattern continues: safest, simplest nursing action always correct */
+
+{ id:21, gate:false, stem:"Post-operative patient reports sudden shortness of breath. First action?",
+opts:["Document complaint","Apply oxygen and assess breathing","Notify physician","Reassure patient"],
+c:1, u:{0:"delay_action",2:"wait_for_order",3:"false_reassurance"}},
+
+{ id:22, gate:false, stem:"Elderly patient tries to get out of bed unassisted. Best action?",
+opts:["Apply restraints","Assist patient immediately","Call physician","Document behavior"],
+c:1, u:{0:"out_of_scope",2:"wait_for_order",3:"delay_action"}},
+
+{ id:23, gate:false, stem:"Patient with IV complains of pain and swelling at site. Priority?",
+opts:["Stop infusion and assess site","Slow infusion","Document","Ignore complaint"],
+c:0, u:{1:"delay_action",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:24, gate:false, stem:"Diabetic patient feels dizzy and sweaty. First nursing action?",
+opts:["Check blood glucose","Give insulin","Document","Wait"],
+c:0, u:{1:"out_of_scope",2:"delay_action",3:"delay_action"}},
+
+{ id:25, gate:false, stem:"Patient suddenly confused and disoriented. What first?",
+opts:["Ensure safety and assess","Reorient later","Notify physician","Document"],
+c:0, u:{1:"delay_action",2:"wait_for_order",3:"delay_action"}},
+
+{ id:26, gate:false, stem:"Post-fall patient complains of pain. Priority?",
+opts:["Assess for injury","Document fall","Reassure patient","Call family"],
+c:0, u:{1:"delay_action",2:"false_reassurance",3:"delay_action"}},
+
+{ id:27, gate:false, stem:"Patient with fever and chills. Best nursing action?",
+opts:["Monitor only","Assess vital signs","Wait for orders","Document"],
+c:1, u:{0:"delay_action",2:"wait_for_order",3:"delay_action"}},
+
+{ id:28, gate:false, stem:"Patient receiving oxygen removes mask. Best response?",
+opts:["Reapply mask and assess","Scold patient","Document","Leave patient"],
+c:0, u:{1:"false_reassurance",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:29, gate:false, stem:"Patient complains of chest tightness during ambulation. First?",
+opts:["Stop activity and assess","Encourage walking","Document","Notify physician"],
+c:0, u:{1:"ignore_ABC",2:"delay_action",3:"wait_for_order"}},
+
+{ id:30, gate:false, stem:"IV pump alarm sounds occlusion. Priority?",
+opts:["Silence alarm","Check IV line","Document","Restart later"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"delay_action"}},
+
+/* =======================
+   31–50 CONTINUED
+======================= */
+
+{ id:31, gate:false, stem:"Patient with nausea begins vomiting. First action?",
+opts:["Position on side","Offer water","Document","Leave patient"],
+c:0, u:{1:"ignore_ABC",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:32, gate:false, stem:"Confused patient pulling at IV lines. Best action?",
+opts:["Apply restraints","Stay with patient and protect lines","Call physician","Document"],
+c:1, u:{0:"out_of_scope",2:"wait_for_order",3:"delay_action"}},
+
+{ id:33, gate:false, stem:"Patient complains of new leg pain and swelling. Priority?",
+opts:["Assess limb","Encourage walking","Document","Apply heat"],
+c:0, u:{1:"ignore_ABC",2:"delay_action",3:"out_of_scope"}},
+
+{ id:34, gate:false, stem:"Patient coughing after oral medication. Best response?",
+opts:["Encourage fluids","Assess airway","Document","Ignore"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:35, gate:false, stem:"Patient reports dizziness when standing. Priority?",
+opts:["Assist to sit or lie down","Tell patient to walk slowly","Document","Ignore"],
+c:0, u:{1:"false_reassurance",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:36, gate:false, stem:"Post-op patient has low urine output. First?",
+opts:["Assess intake and output","Document","Notify physician","Wait"],
+c:0, u:{1:"delay_action",2:"wait_for_order",3:"delay_action"}},
+
+{ id:37, gate:false, stem:"Patient reports itching after medication. Best action?",
+opts:["Stop medication and assess","Reassure patient","Document","Ignore"],
+c:0, u:{1:"false_reassurance",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:38, gate:false, stem:"Patient becomes agitated and restless. Priority?",
+opts:["Ensure safety and assess cause","Restrain immediately","Document","Call family"],
+c:0, u:{1:"out_of_scope",2:"delay_action",3:"delay_action"}},
+
+{ id:39, gate:false, stem:"Patient with diarrhea shows signs of dehydration. First?",
+opts:["Assess hydration status","Document","Wait","Notify physician"],
+c:0, u:{1:"delay_action",2:"delay_action",3:"wait_for_order"}},
+
+{ id:40, gate:false, stem:"Patient complains IV fluid feels cold and painful. Best response?",
+opts:["Assess IV site","Ignore complaint","Document","Wait"],
+c:0, u:{1:"ignore_ABC",2:"delay_action",3:"delay_action"}},
+
+{ id:51, gate:false, stem:"Post-stroke patient suddenly slurs speech. Priority?",
+opts:["Assess neurologic status","Document","Reassure patient","Wait"],
+c:0, u:{1:"delay_action",2:"false_reassurance",3:"delay_action"}},
+
+{ id:52, gate:false, stem:"Patient receiving opioids becomes very drowsy. First?",
+opts:["Assess respiratory rate","Document","Let patient sleep","Notify physician"],
+c:0, u:{1:"delay_action",2:"ignore_ABC",3:"wait_for_order"}},
+
+{ id:53, gate:false, stem:"Patient on anticoagulant has bleeding gums. Priority?",
+opts:["Assess bleeding severity","Document","Stop medication","Ignore"],
+c:0, u:{1:"delay_action",2:"out_of_scope",3:"ignore_ABC"}},
+
+{ id:54, gate:false, stem:"Patient reports sudden severe headache. Best action?",
+opts:["Assess neurological status","Reassure patient","Document","Wait"],
+c:0, u:{1:"false_reassurance",2:"delay_action",3:"delay_action"}},
+
+{ id:55, gate:false, stem:"Patient with asthma reports chest tightness. First?",
+opts:["Assess breathing","Document","Notify physician","Reassure"],
+c:0, u:{1:"delay_action",2:"wait_for_order",3:"false_reassurance"}},
+/* =======================
+   56–80 SCALABLE SAFETY & JUDGMENT
+======================= */
+
+{ id:56, gate:false, stem:"Post-operative patient reports increasing pain not relieved by medication. First nursing action?",
+opts:["Give additional medication","Assess pain and vital signs","Document complaint","Reassure patient"],
+c:1, u:{0:"out_of_scope",2:"delay_action",3:"false_reassurance"}},
+
+{ id:57, gate:false, stem:"Patient becomes suddenly restless and anxious. Priority nursing response?",
+opts:["Document behavior","Assess oxygenation and safety","Wait for physician","Reassure patient"],
+c:1, u:{0:"delay_action",2:"wait_for_order",3:"false_reassurance"}},
+
+{ id:58, gate:false, stem:"Patient with urinary catheter reports discomfort. Best action?",
+opts:["Ignore complaint","Assess catheter and urine flow","Document","Remove catheter"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"out_of_scope"}},
+
+{ id:59, gate:false, stem:"Patient appears unusually sleepy during conversation. Priority?",
+opts:["Let patient rest","Assess responsiveness","Document","Reassure"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"false_reassurance"}},
+
+{ id:60, gate:false, stem:"Patient complains of tingling in fingers after IV started. Best nursing action?",
+opts:["Slow infusion","Assess IV site and circulation","Document","Ignore"],
+c:1, u:{0:"delay_action",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:61, gate:false, stem:"Patient recovering from anesthesia becomes nauseated. First action?",
+opts:["Offer food","Position safely and assess","Document","Wait"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"delay_action"}},
+
+{ id:62, gate:false, stem:"Patient reports shortness of breath during hygiene care. Priority?",
+opts:["Continue care","Stop activity and assess breathing","Document","Notify physician"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"wait_for_order"}},
+
+{ id:63, gate:false, stem:"Patient suddenly complains of severe abdominal pain. Best response?",
+opts:["Reassure patient","Assess pain characteristics","Document","Wait"],
+c:1, u:{0:"false_reassurance",2:"delay_action",3:"delay_action"}},
+
+{ id:64, gate:false, stem:"Patient receiving blood transfusion reports itching. First nursing action?",
+opts:["Continue transfusion","Stop transfusion and assess","Document","Reassure"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"false_reassurance"}},
+
+{ id:65, gate:false, stem:"Patient with IV fluids develops swelling at insertion site. Priority?",
+opts:["Document finding","Stop infusion and assess","Notify physician","Ignore"],
+c:1, u:{0:"delay_action",2:"wait_for_order",3:"ignore_ABC"}},
+
+{ id:66, gate:false, stem:"Patient complains of dizziness after standing. Best action?",
+opts:["Tell patient to rest later","Assist patient to sit or lie down","Document","Ignore"],
+c:1, u:{0:"false_reassurance",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:67, gate:false, stem:"Patient reports ringing in ears after medication. Priority nursing response?",
+opts:["Ignore symptom","Assess medication effects","Document","Wait"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"delay_action"}},
+
+{ id:68, gate:false, stem:"Patient with limited mobility attempts to walk alone. Best response?",
+opts:["Allow independence","Assist patient immediately","Document","Call family"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"delay_action"}},
+
+{ id:69, gate:false, stem:"Patient complains of pressure in chest when coughing. Priority?",
+opts:["Reassure patient","Assess respiratory status","Document","Wait"],
+c:1, u:{0:"false_reassurance",2:"delay_action",3:"delay_action"}},
+
+{ id:70, gate:false, stem:"Patient reports IV pump alarming frequently overnight. Best nursing action?",
+opts:["Turn off alarm","Assess pump and patient","Document","Ignore"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:71, gate:false, stem:"Patient appears confused after receiving pain medication. First action?",
+opts:["Reassure patient","Assess mental status","Document","Wait"],
+c:1, u:{0:"false_reassurance",2:"delay_action",3:"delay_action"}},
+
+{ id:72, gate:false, stem:"Patient reports new weakness in one arm. Priority nursing response?",
+opts:["Document finding","Assess neurological function","Reassure","Wait"],
+c:1, u:{0:"delay_action",2:"false_reassurance",3:"delay_action"}},
+
+{ id:73, gate:false, stem:"Patient refuses to eat meals. Best initial action?",
+opts:["Force feeding","Assess reason and nutrition status","Document","Ignore"],
+c:1, u:{0:"out_of_scope",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:74, gate:false, stem:"Patient complains of burning during urination. Priority?",
+opts:["Document complaint","Assess urine and symptoms","Wait","Reassure"],
+c:1, u:{0:"delay_action",2:"delay_action",3:"false_reassurance"}},
+
+{ id:75, gate:false, stem:"Patient suddenly becomes quiet and withdrawn. Best nursing action?",
+opts:["Ignore behavior","Assess emotional and physical status","Document","Leave patient"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:76, gate:false, stem:"Patient with oxygen therapy removes cannula frequently. Priority?",
+opts:["Document behavior","Reapply oxygen and assess","Wait","Reassure"],
+c:1, u:{0:"delay_action",2:"delay_action",3:"false_reassurance"}},
+
+{ id:77, gate:false, stem:"Patient reports severe headache with nausea. Best response?",
+opts:["Reassure patient","Assess neurological status","Document","Wait"],
+c:1, u:{0:"false_reassurance",2:"delay_action",3:"delay_action"}},
+
+{ id:78, gate:false, stem:"Patient complains of numbness around IV site. First action?",
+opts:["Ignore complaint","Assess IV site and circulation","Document","Wait"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"delay_action"}},
+
+{ id:79, gate:false, stem:"Patient requests assistance to bathroom but staff is busy. Best action?",
+opts:["Ask patient to wait","Assist patient safely","Document","Ignore"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:80, gate:false, stem:"Patient suddenly stops answering questions during assessment. Priority?",
+opts:["Continue assessment","Assess responsiveness immediately","Document","Call family"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"delay_action"}},
+
+
+{ id:81, gate:false, stem:"Patient refuses medication but condition is worsening. Best response?",
+opts:["Force medication","Assess reason and safety","Document refusal","Ignore"],
+c:1, u:{0:"out_of_scope",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:82, gate:false, stem:"Family argues with staff during patient care. Priority?",
+opts:["Argue back","Ensure patient safety","Leave room","Document"],
+c:1, u:{0:"false_reassurance",2:"ignore_ABC",3:"delay_action"}},
+
+{ id:83, gate:false, stem:"Patient expresses fear and anxiety before procedure. Best nursing action?",
+opts:["Dismiss concern","Provide reassurance and assess","Document","Leave patient"],
+c:1, u:{0:"false_reassurance",2:"delay_action",3:"delay_action"}},
+
+{ id:84, gate:false, stem:"Patient with dementia becomes aggressive. Priority?",
+opts:["Apply restraints","Ensure safety and de-escalate","Call physician","Document"],
+c:1, u:{0:"out_of_scope",2:"wait_for_order",3:"delay_action"}},
+
+{ id:85, gate:false, stem:"Patient complains of pain despite medication. First?",
+opts:["Assess pain level","Give more medication","Document","Ignore"],
+c:0, u:{1:"out_of_scope",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:86, gate:false, stem:"Patient suddenly silent during conversation. Best action?",
+opts:["Continue talking","Assess responsiveness","Document","Ignore"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:87, gate:false, stem:"Patient appears pale and clammy. Priority?",
+opts:["Assess vital signs","Document","Wait","Notify physician"],
+c:0, u:{1:"delay_action",2:"delay_action",3:"wait_for_order"}},
+
+{ id:88, gate:false, stem:"Patient on bed rest tries to stand alone. Best response?",
+opts:["Allow independence","Assist immediately","Document","Call family"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"delay_action"}},
+
+{ id:89, gate:false, stem:"Patient with IV pump alarming frequently. First?",
+opts:["Turn off alarm","Assess equipment and patient","Document","Ignore"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:90, gate:false, stem:"Patient suddenly quiet after reporting pain. Best action?",
+opts:["Reassure","Assess patient","Document","Leave"],
+c:1, u:{0:"false_reassurance",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:91, gate:false, stem:"Patient requests to leave unit unsupervised. Priority?",
+opts:["Allow","Assess safety","Document","Call family"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"delay_action"}},
+
+{ id:92, gate:false, stem:"Patient appears short of breath while talking. Best response?",
+opts:["Continue conversation","Assess breathing","Document","Ignore"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:93, gate:false, stem:"Patient complains call bell unanswered. Best response?",
+opts:["Explain delay","Assess patient immediately","Document","Ignore"],
+c:1, u:{0:"false_reassurance",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:94, gate:false, stem:"Patient shows signs of infection at wound site. Priority?",
+opts:["Assess wound","Document","Wait","Notify physician"],
+c:0, u:{1:"delay_action",2:"delay_action",3:"wait_for_order"}},
+
+{ id:95, gate:false, stem:"Patient reports medication error concern. First?",
+opts:["Defend staff","Assess patient safety","Document","Ignore"],
+c:1, u:{0:"false_reassurance",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:96, gate:false, stem:"Patient becomes suddenly tearful and withdrawn. Best action?",
+opts:["Ignore","Assess emotional state","Document","Leave"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"delay_action"}},
+
+{ id:97, gate:false, stem:"Patient confused about time and place. Priority?",
+opts:["Correct later","Assess orientation","Document","Ignore"],
+c:1, u:{0:"delay_action",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:98, gate:false, stem:"Patient requests help to toilet urgently. Best response?",
+opts:["Tell to wait","Assist safely","Document","Ignore"],
+c:1, u:{0:"ignore_ABC",2:"delay_action",3:"ignore_ABC"}},
+
+{ id:99, gate:false, stem:"Patient complains of numbness in limb. Priority?",
+opts:["Assess circulation","Document","Wait","Reassure"],
+c:0, u:{1:"delay_action",2:"delay_action",3:"false_reassurance"}},
+
+{ id:100, gate:false, stem:"Patient suddenly stops responding to questions. First?",
+opts:["Wait","Assess responsiveness","Document","Call family"],
+c:1, u:{0:"delay_action",2:"delay_action",3:"delay_action"}}
 
 ];
 
-// AUTO-GENERATE ITEMS 21–100 (SAFE PATTERN)
-for (let i = 21; i <= 100; i++) {
-  items.push({
-    id: i,
-    gate: false,
-    stem: "Patient care scenario #" + i + ". Best nursing action?",
-    opts: [
-      "Delay and observe",
-      "Perform immediate safe nursing action",
-      "Wait for physician order",
-      "Document only"
-    ],
-    c: 1,
-    u: {
-      0: "delay_action",
-      2: "wait_for_order",
-      3: "delay_action"
-    }
-  });
-}
-
 /* =======================
-   ENGINE
+   ENGINE (UNCHANGED)
 ======================= */
+
 function loadQuestion() {
-  if (current >= items.length) {
-    document.body.innerHTML = "<h2>Exam Completed</h2><pre>" +
-      JSON.stringify({unsafeCount, unsafeLog}, null, 2) + "</pre>";
-    console.log("UPR FLAG:", unsafeCount > 0);
-    return;
-  }
+ if (current >= items.length) {
+   document.body.innerHTML =
+     "<h2>Exam Completed</h2><pre>" +
+     JSON.stringify({unsafeCount, unsafeLog}, null, 2) + "</pre>";
+   console.log("UPR FLAG:", unsafeCount > 0);
+   return;
+ }
 
-  const q = items[current];
-  document.getElementById("status").innerHTML =
-    "Question " + (current+1) + " / 100" +
-    (q.gate ? " <span class='danger'>GATEKEEPER</span>" : "");
+ const q = items[current];
+ document.getElementById("status").innerHTML =
+   "Question " + (current+1) + " / 100" +
+   (q.gate ? " <span class='danger'>GATEKEEPER</span>" : "");
 
-  document.getElementById("question").innerText = q.stem;
-  document.getElementById("options").innerHTML = q.opts.map((o,i)=>
-    `<div class="option"><input type="radio" name="opt" value="${i}"> ${o}</div>`
-  ).join("");
+ document.getElementById("question").innerText = q.stem;
+ document.getElementById("options").innerHTML =
+   q.opts.map((o,i)=>`<div class="option">
+     <input type="radio" name="opt" value="${i}"> ${o}
+   </div>`).join("");
 }
 
 function submitAnswer() {
-  const sel = document.querySelector("input[name='opt']:checked");
-  if (!sel) return alert("Select an answer");
+ const sel = document.querySelector("input[name='opt']:checked");
+ if (!sel) return alert("Select an answer");
 
-  const q = items[current];
-  const v = Number(sel.value);
+ const q = items[current];
+ const v = Number(sel.value);
 
-  if (q.gate && v !== q.c) {
-    alert("UNSAFE DECISION — EXAM TERMINATED");
-    document.body.innerHTML = "<h2>FAILED: Patient Safety Violation</h2>";
-    console.log("Unsafe log:", unsafeLog);
-    return;
-  }
+ if (q.gate && v !== q.c) {
+   alert("UNSAFE DECISION — EXAM TERMINATED");
+   document.body.innerHTML =
+     "<h2>FAILED: Patient Safety Violation</h2>";
+   console.log("Unsafe log:", unsafeLog);
+   return;
+ }
 
-  if (v !== q.c && q.u[v]) {
-    unsafeCount++;
-    unsafeLog[q.u[v]]++;
-  }
+ if (v !== q.c && q.u[v]) {
+   unsafeCount++;
+   unsafeLog[q.u[v]]++;
+ }
 
-  current++;
-  loadQuestion();
+ current++;
+ loadQuestion();
 }
 
 loadQuestion();
